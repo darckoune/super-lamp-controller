@@ -5,10 +5,14 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ExampleAppWidgetProvider extends AppWidgetProvider {
     private static final String MyOnClick = "myOnClickTag";
@@ -17,15 +21,20 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId: appWidgetIds){
-
             ZonesSingleton zonesSingleton = ZonesSingleton.getInstance();
-            zonesSingleton.setGatewayName("myGateway");
-            zonesSingleton.clearZones();
-            zonesSingleton.addZone(new Zone(context, "Salon x3"));
-            zonesSingleton.addZone(new Zone(context, "Salon x2"));
-            zonesSingleton.addZone(new Zone(context, "Chambre"));
 
-            Log.i("ONUPDATE", "FOR");
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            Log.i("ONUPDATE", "Starting reading preferences");
+            zonesSingleton.setGatewayName(preferences.getString("Gateway", "No name"));
+
+            String[] zones = preferences.getString("Zones", "").split(",");
+            zonesSingleton.clearZones();
+            for (String zone : zones){
+                Log.i("ONUPDATE", "Creating zone");
+                zonesSingleton.addZone(new Zone(context, zone));
+            }
+
+            Log.i("ONUPDATE", "Zone singleton updated");
 
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.example_widget);
             views.removeAllViews(R.id.container);
