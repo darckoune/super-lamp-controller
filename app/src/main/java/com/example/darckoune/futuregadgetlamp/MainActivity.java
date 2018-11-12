@@ -1,11 +1,17 @@
 package com.example.darckoune.futuregadgetlamp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,34 +31,36 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
-    EditText etResponse;
-    TextView tvIsConnected;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // get reference to the views
-        etResponse = (EditText) findViewById(R.id.etResponse);
-        tvIsConnected = (TextView) findViewById(R.id.tvIsConnected);
-
-        // check if you are connected or not
-        if(isConnected()){
-            tvIsConnected.setBackgroundColor(0xFF00CC00);
-            tvIsConnected.setText("You are conncted");
-        }
-        else{
-            tvIsConnected.setText("You are NOT conncted");
-        }
-        new DatabaseUpdate(this);
+        EditText apiUrlEditor = (EditText) findViewById(R.id.ApiUrl);
+        apiUrlEditor.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("ApiUrl", null));
     }
 
-    public boolean isConnected(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
+    public void updateZones(View v){
+        new DatabaseUpdate(this, this);
+        EditText apiUrlEditor = (EditText) findViewById(R.id.ApiUrl);
+        String url = apiUrlEditor.getText().toString();
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putString("ApiUrl", url);
+        editor.commit();
+    }
+
+    public void updateWidget(){
+        Intent intent = new Intent(this, ExampleAppWidgetProvider.class);
+        intent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+        int ids[] = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), ExampleAppWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
+        sendBroadcast(intent);
+        displayToastSuccess();
+    }
+
+    private void displayToastSuccess() {
+        Toast toast = Toast.makeText(getApplicationContext(), "Widget updated !", Toast.LENGTH_SHORT);
+        toast.show();
     }
 
 }

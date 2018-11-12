@@ -1,6 +1,9 @@
 package com.example.darckoune.futuregadgetlamp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -21,10 +24,15 @@ import java.util.Set;
 
 public class DatabaseUpdate {
     private Context context;
-    public DatabaseUpdate(Context context) {
+    private MainActivity activity;
+    public DatabaseUpdate(Context context, MainActivity activity) {
         this.context = context;
+        this.activity = activity;
         // call AsynTask to perform network operation on separate thread
-        new HttpAsyncTask().execute("http://home.darckoune.moe:8084/api/gateways");
+        String apiUrl = PreferenceManager.getDefaultSharedPreferences(context).getString("ApiUrl", null);
+        String fullURL = apiUrl + "/api/gateways";
+        Log.i("URL CALLED", fullURL);
+        new HttpAsyncTask().execute(fullURL);
     }
 
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
@@ -57,6 +65,7 @@ public class DatabaseUpdate {
                 }
                 editor.putString("Zones", zonesList);
                 editor.commit();
+                activity.updateWidget();
             }
             catch(Exception e){
                 Log.e("JSON Error", e.toString());

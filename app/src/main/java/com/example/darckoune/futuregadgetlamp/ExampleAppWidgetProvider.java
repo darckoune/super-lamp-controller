@@ -64,11 +64,13 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
 
         ZonesSingleton zonesSingleton = ZonesSingleton.getInstance();
 
+        String apiUrl = PreferenceManager.getDefaultSharedPreferences(context).getString("ApiUrl", null);
+
         for (Zone zone : zonesSingleton.getZones()){
             Log.i("ACTION", intent.getAction());
             if (zone.getOnAction().equals(intent.getAction())){
                 new HttpTask().execute(
-                        "http://home.darckoune.moe:8084/api/" +
+                        apiUrl + "/api/" +
                                 zonesSingleton.getGatewayName() +
                                 "/" +
                                 zone.getName() +
@@ -77,7 +79,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             }
             if (zone.getOffAction().equals(intent.getAction())){
                 new HttpTask().execute(
-                        "http://home.darckoune.moe:8084/api/" +
+                        apiUrl + "/api/" +
                                 zonesSingleton.getGatewayName() +
                                 "/" +
                                 zone.getName() +
