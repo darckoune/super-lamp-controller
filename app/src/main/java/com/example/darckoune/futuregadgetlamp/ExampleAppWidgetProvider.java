@@ -8,28 +8,35 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.util.ArrayList;
+
 public class ExampleAppWidgetProvider extends AppWidgetProvider {
     private static final String MyOnClick = "myOnClickTag";
     private static final String MyOnClick2 = "myOnClickTag2";
     private static final String MyOnClick3 = "myOnClickTag3";
-
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId: appWidgetIds){
+
+            ZonesSingleton zonesSingleton = ZonesSingleton.getInstance();
+            zonesSingleton.setGatewayName("myGateway");
+            zonesSingleton.clearZones();
+            zonesSingleton.addZone(new Zone(context, "Salon x3"));
+            zonesSingleton.addZone(new Zone(context, "Salon x2"));
+            zonesSingleton.addZone(new Zone(context, "Chambre"));
 
             Log.i("ONUPDATE", "FOR");
 
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.example_widget);
 
-            RemoteViews button = new RemoteViews(context.getPackageName(), R.layout.zone);
-            button.setOnClickPendingIntent(R.id.onButton,
-                    getPendingSelfIntent(context, MyOnClick2));
-            views.addView(R.id.container, button);
-
-            RemoteViews button2 = new RemoteViews(context.getPackageName(), R.layout.zone);
-            button2.setOnClickPendingIntent(R.id.onButton,
-                    getPendingSelfIntent(context, MyOnClick3));
-            views.addView(R.id.container, button2);
+            for (Zone zone : zonesSingleton.getZones()){
+                RemoteViews zoneView = zone.getRemoteView();
+                zoneView.setOnClickPendingIntent(R.id.onButton,
+                        getPendingSelfIntent(context, zone.getOnAction()));
+                zoneView.setOnClickPendingIntent(R.id.offButton,
+                        getPendingSelfIntent(context, zone.getOffAction()));
+                views.addView(R.id.container, zone.getRemoteView());
+            }
 
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
@@ -44,17 +51,29 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (MyOnClick.equals(intent.getAction())){
-            Log.i("WOW", "ON");
-            new HttpTask().execute("http://home.darckoune.moe:8084/api/myGateway/Salon%20x3/ON");
-        }
 
-        if (MyOnClick2.equals(intent.getAction())){
-            Log.i("WOW", "2");
-        }
+        ZonesSingleton zonesSingleton = ZonesSingleton.getInstance();
 
-        if (MyOnClick3.equals(intent.getAction())){
-            Log.i("WOW", "3");
+        for (Zone zone : zonesSingleton.getZones()){
+            Log.i("ACTION", intent.getAction());
+            if (zone.getOnAction().equals(intent.getAction())){
+                new HttpTask().execute(
+                        "http://home.darckoune.moe:8084/api/" +
+                                zonesSingleton.getGatewayName() +
+                                "/" +
+                                zone.getName() +
+                                "/ON"
+                );
+            }
+            if (zone.getOffAction().equals(intent.getAction())){
+                new HttpTask().execute(
+                        "http://home.darckoune.moe:8084/api/" +
+                                zonesSingleton.getGatewayName() +
+                                "/" +
+                                zone.getName() +
+                                "/OFF"
+                );
+            }
         }
     }
 }
