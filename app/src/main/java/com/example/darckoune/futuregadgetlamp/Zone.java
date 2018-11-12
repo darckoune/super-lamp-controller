@@ -17,6 +17,7 @@ public class Zone {
         this.offAction = "[" + name + "] OFF";
 
         this.remoteView = new RemoteViews(context.getPackageName(), R.layout.zone);
+        remoteView.setTextViewText(R.id.zoneName, this.name);
     }
 
     public RemoteViews getRemoteView() {

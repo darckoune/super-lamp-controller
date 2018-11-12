@@ -28,6 +28,7 @@ public class ExampleAppWidgetProvider extends AppWidgetProvider {
             Log.i("ONUPDATE", "FOR");
 
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.example_widget);
+            views.removeAllViews(R.id.container);
 
             for (Zone zone : zonesSingleton.getZones()){
                 RemoteViews zoneView = zone.getRemoteView();

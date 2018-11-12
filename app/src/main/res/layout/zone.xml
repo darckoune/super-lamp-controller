@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="50dp"
+    android:layout_width="60dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginLeft="5dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/zone_bg">
 
     <Button
         android:id="@+id/onButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@drawable/button_bg_round"
+        android:background="@drawable/button_bg_round_green"
+        android:layout_marginBottom="5dp"
         android:text="ON" />
 
     <Button
@@ -17,6 +21,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@drawable/button_bg_round"
+        android:background="@drawable/button_bg_round_red"
         android:text="OFF" />
+
+    <TextView
+        android:id="@+id/zoneName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Salon x3"
+        android:textAlignment="center"
+        android:textSize="8dp"
+        android:paddingBottom="5dp"/>
 </LinearLayout>
