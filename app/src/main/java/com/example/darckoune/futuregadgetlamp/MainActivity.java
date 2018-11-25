@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         EditText apiUrlEditor = (EditText) findViewById(R.id.ApiUrl);
         apiUrlEditor.setText(PreferenceManager.getDefaultSharedPreferences(this).getString("ApiUrl", null));
+        updateWidget();
     }
 
     public void updateZones(View v){
